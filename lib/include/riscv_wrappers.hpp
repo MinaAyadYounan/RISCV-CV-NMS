@@ -270,4 +270,59 @@ namespace rvv
     {
         return __riscv_vmerge_vvm_f32m2(when_false, when_true, mask, vl);
     }
+
+    inline I32M2 LoadI32M2(const int* src, size_t vl)
+    {
+        return __riscv_vle32_v_i32m2(src, vl);
+    }
+
+    inline void StoreF32M2(float* dst, F32M2 values, size_t vl)
+    {
+        __riscv_vse32_v_f32m2(dst, values, vl);
+    }
+
+    inline void StoreI32M2(int* dst, I32M2 values, size_t vl)
+    {
+        __riscv_vse32_v_i32m2(dst, values, vl);
+    }
+
+    // Segment 2-field operations (deinterleave / interleave) for LMUL=4
+    using F32M4x2 = vfloat32m4x2_t;
+    using I32M4x2 = vint32m4x2_t;
+
+    inline void DeinterleaveF32M4(const float* src, float* even_dst, float* odd_dst, size_t vl)
+    {
+        F32M4x2 pair = __riscv_vlseg2e32_v_f32m4x2(src, vl);
+        F32M4 even_val = __riscv_vget_v_f32m4x2_f32m4(pair, 0);
+        F32M4 odd_val  = __riscv_vget_v_f32m4x2_f32m4(pair, 1);
+        __riscv_vse32_v_f32m4(even_dst, even_val, vl);
+        __riscv_vse32_v_f32m4(odd_dst,  odd_val,  vl);
+    }
+
+    inline void DeinterleaveI32M4(const int* src, int* even_dst, int* odd_dst, size_t vl)
+    {
+        I32M4x2 pair = __riscv_vlseg2e32_v_i32m4x2(src, vl);
+        I32M4 even_val = __riscv_vget_v_i32m4x2_i32m4(pair, 0);
+        I32M4 odd_val  = __riscv_vget_v_i32m4x2_i32m4(pair, 1);
+        __riscv_vse32_v_i32m4(even_dst, even_val, vl);
+        __riscv_vse32_v_i32m4(odd_dst,  odd_val,  vl);
+    }
+
+    inline void InterleaveF32M4(float* dst, const float* even_src, const float* odd_src, size_t vl)
+    {
+        F32M4 even_val = __riscv_vle32_v_f32m4(even_src, vl);
+        F32M4 odd_val  = __riscv_vle32_v_f32m4(odd_src,  vl);
+        F32M4x2 pair = __riscv_vset_v_f32m4_f32m4x2(__riscv_vundefined_f32m4x2(), 0, even_val);
+        pair = __riscv_vset_v_f32m4_f32m4x2(pair, 1, odd_val);
+        __riscv_vsseg2e32_v_f32m4x2(dst, pair, vl);
+    }
+
+    inline void InterleaveI32M4(int* dst, const int* even_src, const int* odd_src, size_t vl)
+    {
+        I32M4 even_val = __riscv_vle32_v_i32m4(even_src, vl);
+        I32M4 odd_val  = __riscv_vle32_v_i32m4(odd_src,  vl);
+        I32M4x2 pair = __riscv_vset_v_i32m4_i32m4x2(__riscv_vundefined_i32m4x2(), 0, even_val);
+        pair = __riscv_vset_v_i32m4_i32m4x2(pair, 1, odd_val);
+        __riscv_vsseg2e32_v_i32m4x2(dst, pair, vl);
+    }
 }

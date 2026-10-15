@@ -71,6 +71,7 @@ target_link_libraries(riscv_baremetal_runtime INTERFACE
   "-lgcc")
 target_link_options(riscv_baremetal_runtime INTERFACE
   "-nostdlib" "-nostartfiles"
+  "-Wl,--build-id=none"
   "-T" "${RISCV_LINKER_SCRIPT}"
   "-L" "${NEXUS_AM_HOME}/am/src/nemu/ldscript"
   "-Wl,--gc-sections")
@@ -133,12 +134,12 @@ function(riscv_add_gem5_run target)
 
   get_target_property(pass_regex ${target} RISCV_GEM5_PASS_REGEX)
   if(pass_regex STREQUAL "RISCV_GEM5_PASS_REGEX-NOTFOUND")
-    set(pass_regex "\\[  PASSED  \\]")
+    set(pass_regex "\\[ PASSED")
   endif()
 
   get_target_property(fail_regex ${target} RISCV_GEM5_FAIL_REGEX)
   if(fail_regex STREQUAL "RISCV_GEM5_FAIL_REGEX-NOTFOUND")
-    set(fail_regex "\\[  FAILED  \\]")
+    set(fail_regex "\\[ FAILED")
   endif()
 
   get_target_property(no_ctest ${target} RISCV_GEM5_NO_CTEST)
